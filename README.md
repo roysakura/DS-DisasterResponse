@@ -1,5 +1,22 @@
 # Disaster Response Pipeline Project
 
+### Repo Url
+
+https://github.com/roysakura/DS-DisasterResponse
+
+
+### Projects Description
+
+This is a machine learning web application project. Consist of three main modules.
+
+1. data module. The main feature for this module is to process the raw data from front end, clean and preprocess the data for machine learning model, then save these clean data to database
+
+2. models module. This module is machine learning module, it used the clean data from database to train a model for predicting disaster message category.
+
+3. app module. This app module use the trained model to predict new message for usage. 
+
+4. In this project, you need to follow the following instrucionts for implementation.
+
 ### Instructions:
 1. Run the following commands in the project's root directory to set up your database and model.
 

@@ -5,6 +5,17 @@ import numpy as np
 from sqlalchemy import create_engine
 
 def load_data(messages_filepath, categories_filepath):
+    '''
+    Load data from raw data source
+
+    Arg:
+    messages_filepath: the raw message source
+    categories_filepath: the category item source
+
+    Return:
+
+    a dataframe object
+    '''
     messages = pd.read_csv(messages_filepath)
     categories = pd.read_csv(categories_filepath)
     
@@ -14,6 +25,10 @@ def load_data(messages_filepath, categories_filepath):
 
 
 def clean_data(df):
+    '''
+    Clean up the dataframe for later processing
+    '''
+
     #Add categories columns as target
     categories = df['categories'].str.split(';',expand=True)
     #Use first row for new category column name
@@ -37,11 +52,27 @@ def clean_data(df):
     return df
     
 def save_data(df, database_filename,table_name):
+
+    '''
+    Save clean data to database
+
+    Arg:
+    df: clean dataframe
+    database_filename: database location
+    table_name: table for storing
+
+
+    '''
     engine = create_engine('sqlite:///{}'.format(database_filename))
     df.to_sql('{}'.format(table_name), engine, index=False)  
 
 
 def main():
+
+    '''
+    Data Processing procedure.
+    
+    '''
     if len(sys.argv) == 5:
 
         messages_filepath, categories_filepath, database_filepath, table_name = sys.argv[1:]

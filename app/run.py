@@ -4,14 +4,20 @@ import pandas as pd
 
 from nltk.stem import WordNetLemmatizer
 from nltk.tokenize import word_tokenize
+from nltk.corpus import stopwords
+import nltk
+import re
+from collections import Counter
 
 from flask import Flask
 from flask import render_template, request, jsonify
-from plotly.graph_objs import Bar
+from plotly.graph_objs import Bar,Pie
 from sklearn.externals import joblib
 from sqlalchemy import create_engine
 import sqlite3
 
+nltk.download("stopwords")
+stopwords_list = stopwords.words('english')
 app = Flask(__name__)
 
 def tokenize(text):
@@ -20,8 +26,11 @@ def tokenize(text):
 
     clean_tokens = []
     for tok in tokens:
-        clean_tok = lemmatizer.lemmatize(tok).lower().strip()
-        clean_tokens.append(clean_tok)
+        if tok not in stopwords_list:
+            clean_tok = lemmatizer.lemmatize(tok).lower().strip()
+            clean_tokens.append(clean_tok)
+        else:
+            continue
 
     return clean_tokens
 
@@ -67,7 +76,41 @@ def index():
             }
         }
     ]
-    
+
+    ## Add Category Pie Chart
+
+    categories = df.columns[4:]
+    cat_dict = {}
+    for cat in categories:
+        cat_dict[cat] = df[cat].sum()
+
+    cat_df = pd.DataFrame.from_dict(cat_dict,orient='index').reset_index()
+    cat_df.columns = ['label','number']
+
+    cat_graph = {}
+    cat_graph['data'] = [
+        Pie(labels=cat_df.label.values.tolist(),values=cat_df.number.values,textfont=dict(size=8),pull=.3,hole=.1)
+    ]
+    cat_graph['layout'] = dict(title='Message Categories')
+    graphs.append(cat_graph)
+
+
+    ## Add Top 10 word Pie Chart
+
+    full_text = (' ').join(df['message'].values.tolist())
+    full_text = re.sub(r'[^\w]', ' ', full_text)
+    tokenize_words = tokenize(full_text)
+    word_freq = Counter(tokenize_words)
+    word_df = pd.DataFrame.from_dict(dict(word_freq),orient='index').reset_index()
+    word_df.columns = ['word','number']
+
+    word_graph = {}
+    word_graph['data'] = [
+        Pie(labels=word_df[:10].word.values.tolist(),values=word_df[:10].number.values,textfont=dict(size=8),pull=.3,hole=.1)
+    ]
+    word_graph['layout'] = dict(title='Top 10 Message Word')
+    graphs.append(word_graph)
+
     # encode plotly graphs in JSON
     ids = ["graph-{}".format(i) for i, _ in enumerate(graphs)]
     graphJSON = json.dumps(graphs, cls=plotly.utils.PlotlyJSONEncoder)

@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="{{ url_for('static',filename='js/wordcloud2.js') }}" charset="utf-8"></script>
 </head>
 
 <body>
@@ -62,6 +63,8 @@
     {% for id in ids %}
         <div id="{{id}}"></div>
     {% endfor %}
+
+        <div id='wordcloud'></div>
 </div>
 
 <script type="text/javascript">
@@ -70,6 +73,7 @@
     for(let i in graphs) {
         Plotly.plot(ids[i], graphs[i].data, graphs[i].layout);
     }
+
 </script>
 
 </body>

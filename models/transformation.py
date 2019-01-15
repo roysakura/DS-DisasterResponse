@@ -1,3 +1,8 @@
+'''
+This module is for custom tranformer building.
+
+'''
+
 from sklearn.preprocessing import FunctionTransformer,LabelEncoder,OneHotEncoder
 from sklearn.base import BaseEstimator, TransformerMixin
 import pandas as pd

@@ -18,6 +18,20 @@ from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
 from P2.models.transformation import ColumnSelector,MyLabelBinarizer,tokenize
 
 def load_data(database_filepath,table):
+    '''
+    This funtion is to load the data from database
+    
+    Argument:
+
+    database_filepath:the path for locating the sqllit database
+    table: the data table for stroing the data
+
+    return:
+
+    X: training dataset
+    Y: target datasest
+    category: the category name list
+    '''
     engine = create_engine('sqlite:///{}'.format(database_filepath))
     df = pd.read_sql('SELECT * from {};'.format(table),engine)
     X = df['message']
@@ -29,10 +43,29 @@ def load_data(database_filepath,table):
 
 
 def build_model():
+    '''
+    Use sklearn pipeline to build up the model
+
+    Return:
+
+    A pipeline object
+
+    '''
     pipeline = Pipeline([('vect',CountVectorizer(tokenizer=tokenize)),('tfidf', TfidfTransformer(norm='l1')),('clf',MultiOutputClassifier(RandomForestClassifier()))])
     return pipeline
 
 def optimize_model(model,X_train,Y_train,X_test,Y_test,category_names):
+    '''
+    Optimize model using GridSearchCV
+
+    Arg:
+    model : model object for training
+    X_train, Y_train : Training dataset pair
+    X_test, Y_test: Evaluating dataset pair
+    category_name: category name list
+
+    '''
+
     parameters = {
               'features__text_pileline__tfidf__norm':['l1'],
               'features__text_pileline__tfidf__sublinear_tf':[True],
@@ -53,17 +86,35 @@ def optimize_model(model,X_train,Y_train,X_test,Y_test,category_names):
     model = be
 
 def evaluate_model(model, X_test, Y_test, category_names):
+    '''
+    Evaluate model by prining out the classification report
+
+    '''
+
     pred = model.predict(X_test)
     for i,column in enumerate(category_names):
         print(column)
         print(classification_report(Y_test[column].values,pred[:,i]))
 
 def save_model(model, model_filepath):
+
+    '''
+    Save trained model to a place using pickle searilizer
+
+    Arg:
+    model: trained model
+    model_filepath: the saving place for model
+    '''
+
     filename = '{}'.format(model_filepath)
     pickle.dump(model, open(filename, 'wb'))
 
 
 def main():
+    '''
+    Run the whole process from loading data to saving the trained model.
+    
+    '''
     if len(sys.argv) == 4:
         database_filepath, table, model_filepath = sys.argv[1:]
         print('Loading data...\n    DATABASE: {}'.format(database_filepath))
